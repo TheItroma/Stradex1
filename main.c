@@ -81,12 +81,19 @@ int main()
             ads1115_read_adc(&adc_values_2[i], &ads2);
         }
         
+        // Read button states
+        bool buttons[4];
+        for (int i = 0; i < 4; i++) {
+            buttons[i] = gpio_get(PB[i]);
+        }
+        
         // Print all values from both ADS units
         printf("ADS1: A0:%5d  A1:%5d  A2:%5d  A3:%5d ", 
                adc_values_1[0], adc_values_1[1], adc_values_1[2], adc_values_1[3]);
-        printf("ADS2: A0:%5d  A1:%5d  A2:%5d  A3:%5d\n", 
+        printf("ADS2: A0:%5d  A1:%5d  A2:%5d  A3:%5d ", 
                adc_values_2[0], adc_values_2[1], adc_values_2[2], adc_values_2[3]);
+        printf("BTN: %d %d %d %d\n", buttons[0], buttons[1], buttons[2], buttons[3]);
 
-        sleep_ms(10);
+        sleep_ms(1);
     }
 }
