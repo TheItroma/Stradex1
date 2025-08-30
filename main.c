@@ -47,11 +47,11 @@ int main()
     ads1115_init(I2C_PORT, ADS_2_ADDR, &ads2);
 
     // Configure ADS1115 for reading all channels
-    ads1115_set_pga(ADS1115_PGA_2_048, &ads1);
+    ads1115_set_pga(ADS1115_PGA_4_096, &ads1);
     ads1115_set_data_rate(ADS1115_RATE_860_SPS, &ads1);
     ads1115_set_operating_mode(ADS1115_MODE_CONTINUOUS, &ads1);
     
-    ads1115_set_pga(ADS1115_PGA_2_048, &ads2);
+    ads1115_set_pga(ADS1115_PGA_4_096, &ads2);
     ads1115_set_data_rate(ADS1115_RATE_860_SPS, &ads2);
     ads1115_set_operating_mode(ADS1115_MODE_CONTINUOUS, &ads2);
 
