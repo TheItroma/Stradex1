@@ -50,8 +50,13 @@ int main()
     ads1115_set_pga(ADS1115_PGA_2_048, &ads1);
     ads1115_set_data_rate(ADS1115_RATE_860_SPS, &ads1);
     ads1115_set_operating_mode(ADS1115_MODE_CONTINUOUS, &ads1);
+    
+    ads1115_set_pga(ADS1115_PGA_2_048, &ads2);
+    ads1115_set_data_rate(ADS1115_RATE_860_SPS, &ads2);
+    ads1115_set_operating_mode(ADS1115_MODE_CONTINUOUS, &ads2);
 
-    int16_t adc_values[4];
+    int16_t adc_values_1[4];
+    int16_t adc_values_2[4];
     uint16_t mux_configs[4] = {
         ADS1115_MUX_SINGLE_0,
         ADS1115_MUX_SINGLE_1,
@@ -60,17 +65,27 @@ int main()
     };
     
     while (true) {
-        // Read all 4 channels
+        // Read all 4 channels from ADS1
         for (int i = 0; i < 4; i++) {
             ads1115_set_input_mux(mux_configs[i], &ads1);
             ads1115_write_config(&ads1);
             sleep_ms(10); // Wait for channel switch
-            ads1115_read_adc(&adc_values[i], &ads1);
+            ads1115_read_adc(&adc_values_1[i], &ads1);
         }
         
-        // Print all values in one line
-        printf("A0:%5d  A1:%5d  A2:%5d  A3:%5d\n", 
-               adc_values[0], adc_values[1], adc_values[2], adc_values[3]);
+        // Read all 4 channels from ADS2
+        for (int i = 0; i < 4; i++) {
+            ads1115_set_input_mux(mux_configs[i], &ads2);
+            ads1115_write_config(&ads2);
+            sleep_ms(10); // Wait for channel switch
+            ads1115_read_adc(&adc_values_2[i], &ads2);
+        }
+        
+        // Print all values from both ADS units
+        printf("ADS1: A0:%5d  A1:%5d  A2:%5d  A3:%5d ", 
+               adc_values_1[0], adc_values_1[1], adc_values_1[2], adc_values_1[3]);
+        printf("ADS2: A0:%5d  A1:%5d  A2:%5d  A3:%5d\n", 
+               adc_values_2[0], adc_values_2[1], adc_values_2[2], adc_values_2[3]);
 
         sleep_ms(10);
     }
