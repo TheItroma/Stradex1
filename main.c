@@ -46,26 +46,32 @@ int main()
     ads1115_init(I2C_PORT, ADS_1_ADDR, &ads1);
     ads1115_init(I2C_PORT, ADS_2_ADDR, &ads2);
 
-    // Modify the default configuration as needed. In this example the
-    // signal will be differential, measured between pins A0 and A3,
-    // and the full-scale voltage range is set to +/- 4.096 V.
-    ads1115_set_input_mux(ADS1115_MUX_SINGLE_3, &ads1);
+    // Configure ADS1115 for reading all channels
     ads1115_set_pga(ADS1115_PGA_2_048, &ads1);
-    ads1115_set_data_rate(ADS1115_RATE_128_SPS, &ads1);
+    ads1115_set_data_rate(ADS1115_RATE_860_SPS, &ads1);
     ads1115_set_operating_mode(ADS1115_MODE_CONTINUOUS, &ads1);
 
-    // Write the configuration for this to have an effect.
-    ads1115_write_config(&ads1);
-
-    float volts;
-    int16_t adc_value;
+    int16_t adc_values[4];
+    uint16_t mux_configs[4] = {
+        ADS1115_MUX_SINGLE_0,
+        ADS1115_MUX_SINGLE_1,
+        ADS1115_MUX_SINGLE_2,
+        ADS1115_MUX_SINGLE_3
+    };
     
     while (true) {
-        // Read a value, convert to volts, and print.
-        ads1115_read_adc(&adc_value, &ads1);
-        volts = ads1115_raw_to_volts(adc_value, &ads1);
-        printf("ADC: %u  Voltage: %f\n", adc_value, volts);
+        // Read all 4 channels
+        for (int i = 0; i < 4; i++) {
+            ads1115_set_input_mux(mux_configs[i], &ads1);
+            ads1115_write_config(&ads1);
+            sleep_ms(10); // Wait for channel switch
+            ads1115_read_adc(&adc_values[i], &ads1);
+        }
+        
+        // Print all values in one line
+        printf("A0:%5d  A1:%5d  A2:%5d  A3:%5d\n", 
+               adc_values[0], adc_values[1], adc_values[2], adc_values[3]);
 
-        sleep_ms(100);
+        sleep_ms(10);
     }
 }
