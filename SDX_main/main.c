@@ -95,6 +95,7 @@ int main()
     }
 }
 
+////////////////////// HARDWARE FUNCTIONS //////////////////////
 void init_I2C() {
     i2c_init(I2C_PORT, 400*1000);
     gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
@@ -136,16 +137,7 @@ void read_ads_channels(ads1115_adc_t *ads, int16_t *adc_values) {
     }
 }
 
-
-
-
-
-
-
-
-
-
-
+////////////////////// MIDI FUNCTIONS //////////////////////
 // Helper function to safely turn a note ON
 void safe_note_on(int button_index, bool note_on_state[]) {
   if (!note_on_state[button_index]) {
@@ -170,6 +162,20 @@ void safe_note_off(int button_index, bool note_on_state[]) {
   }
 }
 
+// Helper function to remove note from stack
+void remove_from_stack(int note_value, int note_stack[], int *stack_size) {
+  for (int j = 0; j < *stack_size; j++) {
+    if (note_stack[j] == note_value) {
+      // Shift remaining notes down
+      for (int k = j; k < *stack_size - 1; k++) {
+        note_stack[k] = note_stack[k + 1];
+      }
+      (*stack_size)--;
+      break;
+    }
+  }
+}
+
 void midi_note_handler(void)
 {
   static bool prev_button_states[NUM_PUSHBUTTONS] = {false};
@@ -181,15 +187,10 @@ void midi_note_handler(void)
   for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
     // Check if button was just pressed (transition from false to true)
     if (buttons[i] && !prev_button_states[i]) {
-      // Turn off current note if one is playing
-      if (stack_size > 0) {
-        // Find which button corresponds to the current top note
-        int current_note = note_stack[stack_size - 1];
-        for (int j = 0; j < NUM_PUSHBUTTONS; j++) {
-          if (open_notes[j] == current_note) {
-            safe_note_off(j, note_on_state);
-            break;
-          }
+      // Turn off all currently playing notes (monophonic behavior)
+      for (int j = 0; j < NUM_PUSHBUTTONS; j++) {
+        if (note_on_state[j]) {
+          safe_note_off(j, note_on_state);
         }
       }
       
@@ -205,55 +206,16 @@ void midi_note_handler(void)
   // Check for button releases
   for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
     if (!buttons[i] && prev_button_states[i]) {
-      // Find and remove this note from the stack
-      int note_to_remove = open_notes[i];
-      bool found = false;
+      // Turn off the released note and remove from stack
+      safe_note_off(i, note_on_state);
+      remove_from_stack(open_notes[i], note_stack, &stack_size);
       
-      for (int j = 0; j < stack_size; j++) {
-        if (note_stack[j] == note_to_remove) {
-          found = true;
-          // Shift remaining notes down
-          for (int k = j; k < stack_size - 1; k++) {
-            note_stack[k] = note_stack[k + 1];
-          }
-          stack_size--;
-          break;
-        }
-      }
-      
-      if (found) {
-        // Turn off the released note
-        safe_note_off(i, note_on_state);
-        
-        // If there are still notes in the stack, play the most recent one
-        if (stack_size > 0) {
-          int next_note = note_stack[stack_size - 1];
-          for (int j = 0; j < NUM_PUSHBUTTONS; j++) {
-            if (open_notes[j] == next_note) {
-              safe_note_on(j, note_on_state);
-              break;
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  // Comprehensive safety check: Ensure consistency between button states and note states
-  for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
-    if (!buttons[i]) {
-      // If button is not pressed, its note MUST be off
-      if (note_on_state[i]) {
-        safe_note_off(i, note_on_state);
-        
-        // Also remove from stack if present
-        for (int j = 0; j < stack_size; j++) {
-          if (note_stack[j] == open_notes[i]) {
-            // Shift remaining notes down
-            for (int k = j; k < stack_size - 1; k++) {
-              note_stack[k] = note_stack[k + 1];
-            }
-            stack_size--;
+      // If there are still notes in the stack, play the most recent one
+      if (stack_size > 0) {
+        int next_note = note_stack[stack_size - 1];
+        for (int j = 0; j < NUM_PUSHBUTTONS; j++) {
+          if (open_notes[j] == next_note) {
+            safe_note_on(j, note_on_state);
             break;
           }
         }
@@ -261,24 +223,26 @@ void midi_note_handler(void)
     }
   }
   
-  // Additional safety: Ensure only the top stack note should be on
+  // Safety check: Ensure unpressed buttons have notes off and clean up stack
+  for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
+    if (!buttons[i] && note_on_state[i]) {
+      safe_note_off(i, note_on_state);
+      remove_from_stack(open_notes[i], note_stack, &stack_size);
+    }
+  }
+  
+  // Ensure only one note is on (the top of stack, if any)
   if (stack_size > 0) {
     int should_be_on_note = note_stack[stack_size - 1];
     for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
-      if (open_notes[i] == should_be_on_note) {
-        // This note should be on
-        if (!note_on_state[i] && buttons[i]) {
-          safe_note_on(i, note_on_state);
-        }
-      } else {
-        // All other notes should be off
-        if (note_on_state[i]) {
-          safe_note_off(i, note_on_state);
-        }
+      if (open_notes[i] == should_be_on_note && buttons[i] && !note_on_state[i]) {
+        safe_note_on(i, note_on_state);
+      } else if (open_notes[i] != should_be_on_note && note_on_state[i]) {
+        safe_note_off(i, note_on_state);
       }
     }
   } else {
-    // No notes should be on if stack is empty
+    // Turn off all notes if stack is empty
     for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
       if (note_on_state[i]) {
         safe_note_off(i, note_on_state);
@@ -291,16 +255,3 @@ void midi_note_handler(void)
     prev_button_states[i] = buttons[i];
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
