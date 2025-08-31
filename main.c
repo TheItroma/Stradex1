@@ -3,6 +3,7 @@
 #include "hardware/i2c.h"
 #include "ads1115.h"
 
+////////////////////// DEFINITIONS //////////////////////
 // I2C Definitions
 #define I2C_PORT i2c0
 #define I2C_SDA 4
@@ -24,8 +25,19 @@ const int PB[] = {16, 17, 18, 19};
 #define PB_3 PB[2]
 #define PB_4 PB[3]
 
+// ADS1115 Channel Configurations
+int16_t adc_values_1[4];
+int16_t adc_values_2[4];
+uint16_t mux_configs[4] = {
+    ADS1115_MUX_SINGLE_0,
+    ADS1115_MUX_SINGLE_1,
+    ADS1115_MUX_SINGLE_2,
+    ADS1115_MUX_SINGLE_3
+};
+
 int main()
 {
+    ////////////////////// INITIALIZATION //////////////////////
     stdio_init_all();
 
     // PB Init
@@ -50,21 +62,12 @@ int main()
     ads1115_set_pga(ADS1115_PGA_4_096, &ads1);
     ads1115_set_data_rate(ADS1115_RATE_860_SPS, &ads1);
     ads1115_set_operating_mode(ADS1115_MODE_CONTINUOUS, &ads1);
-    
     ads1115_set_pga(ADS1115_PGA_4_096, &ads2);
     ads1115_set_data_rate(ADS1115_RATE_860_SPS, &ads2);
     ads1115_set_operating_mode(ADS1115_MODE_CONTINUOUS, &ads2);
-
-    int16_t adc_values_1[4];
-    int16_t adc_values_2[4];
-    uint16_t mux_configs[4] = {
-        ADS1115_MUX_SINGLE_0,
-        ADS1115_MUX_SINGLE_1,
-        ADS1115_MUX_SINGLE_2,
-        ADS1115_MUX_SINGLE_3
-    };
     
     while (true) {
+        ////////////////////// READING SENSORS //////////////////////
         // Read all 4 channels from ADS1
         for (int i = 0; i < 4; i++) {
             ads1115_set_input_mux(mux_configs[i], &ads1);
@@ -87,6 +90,7 @@ int main()
             buttons[i] = gpio_get(PB[i]);
         }
         
+        ////////////////////// PRINTING VALUES //////////////////////
         // Print all values from both ADS units
         printf("ADS1: A0:%5d  A1:%5d  A2:%5d  A3:%5d ", 
                adc_values_1[0], adc_values_1[1], adc_values_1[2], adc_values_1[3]);
@@ -94,6 +98,6 @@ int main()
                adc_values_2[0], adc_values_2[1], adc_values_2[2], adc_values_2[3]);
         printf("BTN: %d %d %d %d\n", buttons[0], buttons[1], buttons[2], buttons[3]);
 
-        sleep_ms(1);
+        sleep_ms(10);
     }
 }
