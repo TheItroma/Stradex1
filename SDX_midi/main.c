@@ -54,24 +54,28 @@ uint16_t mux_configs[4] = {
 const int open_notes[] = {55, 62, 69, 76};
 
 // Fingerboard configuration
-#define NUM_FRETS 12  // Number of frets/semitones available on fingerboard
+#define NUM_FRETS 15  // Number of frets/semitones available on fingerboard
 
 // Fret boundary positions on soft pot (0-26000 range)
 // These values define where each fret begins - tune these to match your soft pot
 const int fret_boundaries[NUM_FRETS + 1] = {
     0,     // Open string (fret 0)
-    2000,  // 1st fret
-    4000,  // 2nd fret  
-    6000,  // 3rd fret
-    8000,  // 4th fret
-    10000, // 5th fret
-    12000, // 6th fret
-    14000, // 7th fret
-    16000, // 8th fret
-    18000, // 9th fret
-    20000, // 10th fret
-    22000, // 11th fret
-    26000  // End boundary
+    9000,  // 1st fret
+    13200, // 2nd fret
+    14000, // 3rd fret  
+    14650, // 4th fret
+    15350, // 5th fret
+    16150, // 6th fret
+    16800, // 7th fret
+    17630, // 8th fret
+    18550, // 9th fret
+    19300, // 10th fret
+    20220, // 11th fret
+    21100, // 12th fret
+    21950, // 13th fret
+    22850, // 14th fret
+    24000, // 15th fret
+    24950  // End boundary
 };
 
 // Define functions
