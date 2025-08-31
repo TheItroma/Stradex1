@@ -146,31 +146,148 @@ void read_ads_channels(ads1115_adc_t *ads, int16_t *adc_values) {
 
 
 
+// Helper function to safely turn a note ON
+void safe_note_on(int button_index, bool note_on_state[]) {
+  if (!note_on_state[button_index]) {
+    uint8_t msg[3];
+    msg[0] = 0x90;                    // Note On - Channel 1
+    msg[1] = open_notes[button_index]; // Note Number
+    msg[2] = 127;                     // Velocity
+    tud_midi_n_stream_write(0, 0, msg, 3);
+    note_on_state[button_index] = true;
+  }
+}
+
+// Helper function to safely turn a note OFF
+void safe_note_off(int button_index, bool note_on_state[]) {
+  if (note_on_state[button_index]) {
+    uint8_t msg[3];
+    msg[0] = 0x80;                    // Note Off - Channel 1
+    msg[1] = open_notes[button_index]; // Note Number
+    msg[2] = 0;                       // Velocity
+    tud_midi_n_stream_write(0, 0, msg, 3);
+    note_on_state[button_index] = false;
+  }
+}
+
 void midi_note_handler(void)
 {
   static bool prev_button_states[NUM_PUSHBUTTONS] = {false};
-  uint8_t msg[3];
+  static int note_stack[NUM_PUSHBUTTONS]; // Stack to remember note order
+  static int stack_size = 0; // Current number of notes in stack
+  static bool note_on_state[NUM_PUSHBUTTONS] = {false}; // Track which notes are actually ON
 
-  // Check each button for press/release events
+  // Check for new button presses first
   for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
     // Check if button was just pressed (transition from false to true)
     if (buttons[i] && !prev_button_states[i]) {
-      // Send Note On
-      msg[0] = 0x90;                    // Note On - Channel 1
-      msg[1] = open_notes[i];           // Note Number from open_notes array
-      msg[2] = 127;                     // Velocity
-      tud_midi_n_stream_write(0, 0, msg, 3);
+      // Turn off current note if one is playing
+      if (stack_size > 0) {
+        // Find which button corresponds to the current top note
+        int current_note = note_stack[stack_size - 1];
+        for (int j = 0; j < NUM_PUSHBUTTONS; j++) {
+          if (open_notes[j] == current_note) {
+            safe_note_off(j, note_on_state);
+            break;
+          }
+        }
+      }
+      
+      // Add new note to stack
+      note_stack[stack_size] = open_notes[i];
+      stack_size++;
+      
+      // Turn on new note
+      safe_note_on(i, note_on_state);
     }
-    // Check if button was just released (transition from true to false)
-    else if (!buttons[i] && prev_button_states[i]) {
-      // Send Note Off
-      msg[0] = 0x80;                    // Note Off - Channel 1
-      msg[1] = open_notes[i];           // Note Number from open_notes array
-      msg[2] = 0;                       // Velocity
-      tud_midi_n_stream_write(0, 0, msg, 3);
-    }
+  }
 
-    // Update previous button state
+  // Check for button releases
+  for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
+    if (!buttons[i] && prev_button_states[i]) {
+      // Find and remove this note from the stack
+      int note_to_remove = open_notes[i];
+      bool found = false;
+      
+      for (int j = 0; j < stack_size; j++) {
+        if (note_stack[j] == note_to_remove) {
+          found = true;
+          // Shift remaining notes down
+          for (int k = j; k < stack_size - 1; k++) {
+            note_stack[k] = note_stack[k + 1];
+          }
+          stack_size--;
+          break;
+        }
+      }
+      
+      if (found) {
+        // Turn off the released note
+        safe_note_off(i, note_on_state);
+        
+        // If there are still notes in the stack, play the most recent one
+        if (stack_size > 0) {
+          int next_note = note_stack[stack_size - 1];
+          for (int j = 0; j < NUM_PUSHBUTTONS; j++) {
+            if (open_notes[j] == next_note) {
+              safe_note_on(j, note_on_state);
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // Comprehensive safety check: Ensure consistency between button states and note states
+  for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
+    if (!buttons[i]) {
+      // If button is not pressed, its note MUST be off
+      if (note_on_state[i]) {
+        safe_note_off(i, note_on_state);
+        
+        // Also remove from stack if present
+        for (int j = 0; j < stack_size; j++) {
+          if (note_stack[j] == open_notes[i]) {
+            // Shift remaining notes down
+            for (int k = j; k < stack_size - 1; k++) {
+              note_stack[k] = note_stack[k + 1];
+            }
+            stack_size--;
+            break;
+          }
+        }
+      }
+    }
+  }
+  
+  // Additional safety: Ensure only the top stack note should be on
+  if (stack_size > 0) {
+    int should_be_on_note = note_stack[stack_size - 1];
+    for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
+      if (open_notes[i] == should_be_on_note) {
+        // This note should be on
+        if (!note_on_state[i] && buttons[i]) {
+          safe_note_on(i, note_on_state);
+        }
+      } else {
+        // All other notes should be off
+        if (note_on_state[i]) {
+          safe_note_off(i, note_on_state);
+        }
+      }
+    }
+  } else {
+    // No notes should be on if stack is empty
+    for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
+      if (note_on_state[i]) {
+        safe_note_off(i, note_on_state);
+      }
+    }
+  }
+  
+  // Update previous button states for all buttons
+  for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
     prev_button_states[i] = buttons[i];
   }
 }
