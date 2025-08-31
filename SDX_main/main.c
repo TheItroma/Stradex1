@@ -13,6 +13,8 @@
 #define ADS_1_ADDR 0x48
 #define ADS_2_ADDR 0x49
 
+ads1115_adc_t ads1, ads2;
+
 // ALRT Pins
 #define ADS_1_ALRT 6
 #define ADS_2_ALRT 7
@@ -99,7 +101,6 @@ void init_PB() {
     }
 }
 void init_ads() {
-    ads1115_adc_t ads1, ads2;
     ads1115_init(I2C_PORT, ADS_1_ADDR, &ads1);
     ads1115_init(I2C_PORT, ADS_2_ADDR, &ads2);
 
