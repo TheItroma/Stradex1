@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
+#include "pico/binary_info.h"
+#include "hardware/gpio.h"
 #include "hardware/i2c.h"
 #include "ads1115.h"
 
-////////////////////// DEFINITIONS //////////////////////
+#include "bsp/board.h"
+#include "tusb.h"
+
+////////////////////// HARDWARE DEFINITIONS //////////////////////
 // I2C Definitions
 #define I2C_PORT i2c0
 #define I2C_SDA 4
@@ -13,6 +18,7 @@
 #define ADS_1_ADDR 0x48
 #define ADS_2_ADDR 0x49
 
+// ADS Objects
 ads1115_adc_t ads1, ads2;
 
 // ALRT Pins
@@ -32,6 +38,9 @@ bool buttons[NUM_PUSHBUTTONS];
 int16_t adc_values_1[4];
 int16_t adc_values_2[4];
 
+// USB device status
+static bool device_mounted = false;
+
 // ADS1115 Channel Configurations
 uint16_t mux_configs[4] = {
     ADS1115_MUX_SINGLE_0,
@@ -40,6 +49,9 @@ uint16_t mux_configs[4] = {
     ADS1115_MUX_SINGLE_3
 };
 
+////////////////////// MIDI DEFINITIONS //////////////////////
+const int open_notes[] = {55, 62, 69, 76};
+
 // Define functions
 void serial_debug_print();
 void init_I2C();
@@ -47,9 +59,14 @@ void init_PB();
 void init_ads();
 void read_ads_channels(ads1115_adc_t *ads, int16_t *adc_values);
 void read_PB();
+void midi_note_handler();
 
 int main()
 {
+    // Initialize tinyusb
+    board_init();
+    tusb_init();
+    
     ////////////////////// INITIALIZATION //////////////////////
     stdio_init_all();
 
@@ -62,28 +79,20 @@ int main()
     // Initialize ADS1115
     // Edit contents of function to fiddle with ADS1115 settings
     init_ads();
-    
+
     while (true) {
-        // Read all 4 channels from both ADS units
+        // Run tinyusb task
+        tud_task();
+
+        // Read all sensors
+        read_PB();
         read_ads_channels(&ads1, adc_values_1);
         read_ads_channels(&ads2, adc_values_2);
-        
-        // Read button states
-        read_PB();
-        
-        // Print debug statements
-        serial_debug_print();
+
+        // Run MIDI note handler
+        // It constantly checks for the sensor data and adjusts midi note on and offs accordingly
+        midi_note_handler();
     }
-}
-
-void serial_debug_print() {
-    printf("ADS1: A0:%5d  A1:%5d  A2:%5d  A3:%5d ", 
-            adc_values_1[0], adc_values_1[1], adc_values_1[2], adc_values_1[3]);
-    printf("ADS2: A0:%5d  A1:%5d  A2:%5d  A3:%5d ", 
-            adc_values_2[0], adc_values_2[1], adc_values_2[2], adc_values_2[3]);
-    printf("BTN: %d %d %d %d\n", buttons[0], buttons[1], buttons[2], buttons[3]);
-
-    sleep_ms(10);
 }
 
 void init_I2C() {
@@ -122,7 +131,59 @@ void read_ads_channels(ads1115_adc_t *ads, int16_t *adc_values) {
     for (int i = 0; i < 4; i++) {
         ads1115_set_input_mux(mux_configs[i], ads);
         ads1115_write_config(ads);
-        sleep_ms(10); // Wait for channel switch
+        // sleep_ms(10); // Wait for channel switch
         ads1115_read_adc(&adc_values[i], ads);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+void midi_note_handler(void)
+{
+  static bool prev_button_states[NUM_PUSHBUTTONS] = {false};
+  uint8_t msg[3];
+
+  // Check each button for press/release events
+  for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
+    // Check if button was just pressed (transition from false to true)
+    if (buttons[i] && !prev_button_states[i]) {
+      // Send Note On
+      msg[0] = 0x90;                    // Note On - Channel 1
+      msg[1] = open_notes[i];           // Note Number from open_notes array
+      msg[2] = 127;                     // Velocity
+      tud_midi_n_stream_write(0, 0, msg, 3);
+    }
+    // Check if button was just released (transition from true to false)
+    else if (!buttons[i] && prev_button_states[i]) {
+      // Send Note Off
+      msg[0] = 0x80;                    // Note Off - Channel 1
+      msg[1] = open_notes[i];           // Note Number from open_notes array
+      msg[2] = 0;                       // Velocity
+      tud_midi_n_stream_write(0, 0, msg, 3);
+    }
+
+    // Update previous button state
+    prev_button_states[i] = buttons[i];
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
