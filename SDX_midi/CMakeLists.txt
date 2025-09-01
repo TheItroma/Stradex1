@@ -37,8 +37,10 @@ pico_sdk_init()
 
 add_executable(main 
         main.c 
-        ads1115.c
-        usb_descriptors.c)
+        hardware.c
+        midi.c
+        lib/ads1115/ads1115.c
+        lib/tinyusb/usb_descriptors.c)
 
 pico_set_program_name(main "main")
 pico_set_program_version(main "0.1")
@@ -54,6 +56,8 @@ target_link_libraries(main
 # Add the standard include files to the build
 target_include_directories(main PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/lib/ads1115
+        ${CMAKE_CURRENT_LIST_DIR}/lib/tinyusb
 )
 
 # Add any user requested libraries
