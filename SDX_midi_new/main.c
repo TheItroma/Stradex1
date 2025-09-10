@@ -114,7 +114,7 @@ void serial_debug_print() {
     printf("BTN: %d %d %d %d ", buttons[0], buttons[1], buttons[2], buttons[3]);
     printf("MIDI Note: %d (Note %s)\n", current_note, note_on ? "ON" : "OFF");
 
-    sleep_ms(10);
+    sleep_ms(1);
 }
 
 void init_I2C() {

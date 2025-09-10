@@ -1,7 +1,19 @@
 #ifndef _MIDI_H_
 #define _MIDI_H_
 
-#include "config.h"
+#include <stdbool.h>
+#include <stdint.h>
+
+// External variable declarations (defined in main.c)
+extern bool buttons[];
+extern int16_t adc_values_1[];
+extern int16_t adc_values_2[];
+extern const int open_notes[];
+extern const int fret_boundaries[];
+
+// Constants
+#define NUM_PUSHBUTTONS 4
+#define NUM_FRETS 16
 
 // MIDI helper functions
 int get_fret_from_position(int soft_pot_value);

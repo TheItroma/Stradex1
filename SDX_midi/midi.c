@@ -1,29 +1,6 @@
 #include "midi.h"
 #include "tusb.h"
 
-// MIDI constants
-const int open_notes[] = {55, 62, 69, 76};
-
-// Fret boundary positions on soft pot (0-26000 range)
-const int fret_boundaries[NUM_FRETS + 1] = {
-    0,     // Open string (fret 0)
-    9000,  // 1st fret
-    13200, // 2nd fret
-    14000, // 3rd fret  
-    14650, // 4th fret
-    15350, // 5th fret
-    16150, // 6th fret
-    16800, // 7th fret
-    17630, // 8th fret
-    18550, // 9th fret
-    19300, // 10th fret
-    20220, // 11th fret
-    21100, // 12th fret
-    21950, // 13th fret
-    22850, // 14th fret
-    24000, // 15th fret
-    24950  // End boundary
-};
 
 ////////////////////// MIDI FUNCTIONS //////////////////////
 // Helper function to get fret number from soft pot position
@@ -107,7 +84,7 @@ void midi_note_handler(void)
   static int candidate_fret = 0; // Candidate fret for stability check
   
   // Get current fret position from soft pot (ADS2 CH4)
-  int raw_fret = get_fret_from_position(adc_values_2[3]); // CH4 is index 3
+  int raw_fret = get_fret_from_position(adc_values_2[0]); // CH4 is index 3
   
   // Add stability filtering - only change fret if it's stable for a few readings
   int current_fret;
