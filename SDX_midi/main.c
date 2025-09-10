@@ -136,11 +136,15 @@ int main()
             read_ads_channels(&ads1, adc_values_1);
             read_ads_channels(&ads2, adc_values_2);
 
-            // Run MIDI note handler
-            // It constantly checks for the sensor data and adjusts midi note on and offs accordingly
-            midi_note_handler();
+            // Run MIDI logic handler (separated from MIDI output)
+            // It processes sensor data and updates current_note variable
+            midi_logic_handler();
 
             last_sensor_read = current_time;
         }
+        
+        // Handle MIDI output based on current_note variable
+        // This runs every loop iteration for responsive MIDI output
+        handle_midi_output();
     }
 }

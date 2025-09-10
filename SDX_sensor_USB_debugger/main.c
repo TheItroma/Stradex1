@@ -92,8 +92,8 @@ int main()
     
     while (true) {
         // Read all 4 channels from both ADS units (non-blocking)
-        read_ads_channels(&ads1, adc_values_1, &adc1_state);
-        read_ads_channels(&ads2, adc_values_2, &adc2_state);
+        bool ads1_complete = read_ads_channels(&ads1, adc_values_1, &adc1_state);
+        bool ads2_complete = read_ads_channels(&ads2, adc_values_2, &adc2_state);
         
         // Read button states
         read_PB();
@@ -101,8 +101,10 @@ int main()
         // Interpret MIDI state from sensor data
         interpret_midi_state();
         
-        // Print debug statements
-        serial_debug_print();
+        // Print debug statements only when both ADS units have completed a full cycle
+        if (ads1_complete && ads2_complete) {
+            serial_debug_print();
+        }
     }
 }
 
@@ -113,8 +115,6 @@ void serial_debug_print() {
             adc_values_2[0], adc_values_2[1], adc_values_2[2], adc_values_2[3]);
     printf("BTN: %d %d %d %d ", buttons[0], buttons[1], buttons[2], buttons[3]);
     printf("MIDI Note: %d (Note %s)\n", current_note, note_on ? "ON" : "OFF");
-
-    sleep_ms(10);
 }
 
 void init_I2C() {
@@ -154,7 +154,7 @@ bool read_ads_channels(ads1115_adc_t *ads, int16_t *adc_values, adc_state_t *sta
     
     // If we're waiting for a channel switch to settle
     if (state->waiting_for_switch) {
-        if (current_time - state->last_switch_time >= 1) {
+        if (current_time - state->last_switch_time >= 3) {
             // Channel has settled, read the ADC value
             ads1115_read_adc(&adc_values[state->current_channel], ads);
             state->waiting_for_switch = false;

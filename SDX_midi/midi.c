@@ -1,8 +1,11 @@
 #include "midi.h"
 #include "tusb.h"
 
+// Global variable to track current note state
+int current_note = -1;  // -1 means no note, otherwise MIDI note number
+bool note_should_be_on = false;
 
-////////////////////// MIDI FUNCTIONS //////////////////////
+////////////////////// LOGIC FUNCTIONS //////////////////////
 // Helper function to get fret number from soft pot position
 int get_fret_from_position(int soft_pot_value) {
     // Handle negative values more aggressively - they indicate no touch or error
@@ -31,30 +34,69 @@ int get_violin_note(int string_index, int fret) {
     return open_notes[string_index] + fret;
 }
 
-// Helper function to safely turn a note ON with violin fingerboard logic
-void safe_violin_note_on(int button_index, int fret, bool note_on_state[], int current_notes[]) {
+// Logic function to determine what note should be played
+void update_note_logic(int button_index, int fret, bool note_on_state[], int current_notes[]) {
   if (!note_on_state[button_index]) {
     int note_to_play = get_violin_note(button_index, fret);
-    uint8_t msg[3];
-    msg[0] = 0x90;                              // Note On - Channel 1
-    msg[1] = note_to_play;                      // Calculate note based on string + fret
-    msg[2] = 127;                               // Velocity
-    tud_midi_n_stream_write(0, 0, msg, 3);
+    current_note = note_to_play;
+    note_should_be_on = true;
     note_on_state[button_index] = true;
-    current_notes[button_index] = note_to_play; // Store the actual MIDI note being played
+    current_notes[button_index] = note_to_play;
   }
 }
 
-// Helper function to safely turn a note OFF with violin fingerboard logic
-void safe_violin_note_off(int button_index, bool note_on_state[], int current_notes[]) {
+// Logic function to determine note should be turned off
+void update_note_off_logic(int button_index, bool note_on_state[], int current_notes[]) {
   if (note_on_state[button_index]) {
-    uint8_t msg[3];
-    msg[0] = 0x80;                              // Note Off - Channel 1
-    msg[1] = current_notes[button_index];       // Use the stored MIDI note
-    msg[2] = 0;                                 // Velocity
-    tud_midi_n_stream_write(0, 0, msg, 3);
+    current_note = current_notes[button_index];
+    note_should_be_on = false;
     note_on_state[button_index] = false;
-    current_notes[button_index] = -1;           // Clear the stored note
+    current_notes[button_index] = -1;
+  }
+}
+
+////////////////////// MIDI OUTPUT FUNCTIONS //////////////////////
+// Function to send MIDI note on
+void send_midi_note_on(int note) {
+  uint8_t msg[3];
+  msg[0] = 0x90;  // Note On - Channel 1
+  msg[1] = note;  // MIDI note number
+  msg[2] = 127;   // Velocity
+  tud_midi_n_stream_write(0, 0, msg, 3);
+}
+
+// Function to send MIDI note off
+void send_midi_note_off(int note) {
+  uint8_t msg[3];
+  msg[0] = 0x80;  // Note Off - Channel 1
+  msg[1] = note;  // MIDI note number
+  msg[2] = 0;     // Velocity
+  tud_midi_n_stream_write(0, 0, msg, 3);
+}
+
+// Function to handle MIDI output based on current_note variable
+void handle_midi_output() {
+  static int last_sent_note = -1;
+  static bool last_note_state = false;
+  
+  // Handle note changes
+  if (note_should_be_on && current_note != -1) {
+    // Turn off previous note if different
+    if (last_note_state && last_sent_note != current_note && last_sent_note != -1) {
+      send_midi_note_off(last_sent_note);
+    }
+    // Turn on new note if not already on
+    if (!last_note_state || last_sent_note != current_note) {
+      send_midi_note_on(current_note);
+      last_sent_note = current_note;
+      last_note_state = true;
+    }
+  } else if (!note_should_be_on && last_note_state) {
+    // Turn off current note
+    if (last_sent_note != -1) {
+      send_midi_note_off(last_sent_note);
+      last_note_state = false;
+    }
   }
 }
 
@@ -72,7 +114,7 @@ void remove_from_stack(int button_index, int note_stack[], int *stack_size) {
   }
 }
 
-void midi_note_handler(void)
+void midi_logic_handler(void)
 {
   static bool prev_button_states[NUM_PUSHBUTTONS] = {false};
   static int note_stack[NUM_PUSHBUTTONS]; // Stack to remember note order (stores button indices)
@@ -106,9 +148,9 @@ void midi_note_handler(void)
     // Find which button is currently playing (top of stack)
     int active_button = note_stack[stack_size - 1];
     if (note_on_state[active_button]) {
-      // Turn off old note and turn on new note at new fret position
-      safe_violin_note_off(active_button, note_on_state, current_notes);
-      safe_violin_note_on(active_button, current_fret, note_on_state, current_notes);
+      // Update logic for fret change
+      update_note_off_logic(active_button, note_on_state, current_notes);
+      update_note_logic(active_button, current_fret, note_on_state, current_notes);
     }
   }
   
@@ -119,7 +161,7 @@ void midi_note_handler(void)
       // Turn off all currently playing notes (monophonic behavior)
       for (int j = 0; j < NUM_PUSHBUTTONS; j++) {
         if (note_on_state[j]) {
-          safe_violin_note_off(j, note_on_state, current_notes);
+          update_note_off_logic(j, note_on_state, current_notes);
         }
       }
       
@@ -127,23 +169,23 @@ void midi_note_handler(void)
       note_stack[stack_size] = i;
       stack_size++;
       
-      // Turn on new note with current fret position
-      safe_violin_note_on(i, current_fret, note_on_state, current_notes);
+      // Update logic for new note
+      update_note_logic(i, current_fret, note_on_state, current_notes);
     }
   }
 
   // Check for button releases
   for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
     if (!buttons[i] && prev_button_states[i]) {
-      // Turn off the released note and remove from stack
-      safe_violin_note_off(i, note_on_state, current_notes);
+      // Update logic for note off and remove from stack
+      update_note_off_logic(i, note_on_state, current_notes);
       remove_from_stack(i, note_stack, &stack_size); // Remove button index from stack
       
       // If there are still buttons in the stack, play the most recent one
       if (stack_size > 0) {
         int next_button = note_stack[stack_size - 1];
         if (buttons[next_button]) { // Only if the button is still pressed
-          safe_violin_note_on(next_button, current_fret, note_on_state, current_notes);
+          update_note_logic(next_button, current_fret, note_on_state, current_notes);
         }
       }
     }
@@ -152,7 +194,7 @@ void midi_note_handler(void)
   // Safety check: Ensure unpressed buttons have notes off and clean up stack
   for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
     if (!buttons[i] && note_on_state[i]) {
-      safe_violin_note_off(i, note_on_state, current_notes);
+      update_note_off_logic(i, note_on_state, current_notes);
       remove_from_stack(i, note_stack, &stack_size);
     }
   }
@@ -162,16 +204,16 @@ void midi_note_handler(void)
     int should_be_on_button = note_stack[stack_size - 1];
     for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
       if (i == should_be_on_button && buttons[i] && !note_on_state[i]) {
-        safe_violin_note_on(i, current_fret, note_on_state, current_notes);
+        update_note_logic(i, current_fret, note_on_state, current_notes);
       } else if (i != should_be_on_button && note_on_state[i]) {
-        safe_violin_note_off(i, note_on_state, current_notes);
+        update_note_off_logic(i, note_on_state, current_notes);
       }
     }
   } else {
     // Turn off all notes if stack is empty
     for (int i = 0; i < NUM_PUSHBUTTONS; i++) {
       if (note_on_state[i]) {
-        safe_violin_note_off(i, note_on_state, current_notes);
+        update_note_off_logic(i, note_on_state, current_notes);
       }
     }
   }

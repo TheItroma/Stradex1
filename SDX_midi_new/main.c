@@ -2,6 +2,7 @@
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "ads1115.h"
+#include "tusb.h"
 
 ////////////////////// DEFINITIONS //////////////////////
 // I2C Definitions
@@ -44,6 +45,7 @@ adc_state_t adc2_state = {0, 0, false};
 
 // Current midi state variables
 int16_t current_note = -1;
+int16_t previous_note = -1;
 int16_t current_pitchbend = 0;
 int16_t current_velocity = 0;
 bool note_on = false;
@@ -58,8 +60,23 @@ uint16_t mux_configs[4] = {
 
 // Fret positions array (17 values from 9000 to 26000)
 int16_t fret_positions[17] = {
-    9000, 10062, 11125, 12187, 13250, 14312, 15375, 16437, 17500,
-    18562, 19625, 20687, 21750, 22812, 23875, 24937, 26000
+    0,     // Open string (fret 0)
+    9000,  // 1st fret
+    13200, // 2nd fret
+    14000, // 3rd fret  
+    14650, // 4th fret
+    15350, // 5th fret
+    16150, // 6th fret
+    16800, // 7th fret
+    17630, // 8th fret
+    18550, // 9th fret
+    19300, // 10th fret
+    20220, // 11th fret
+    21100, // 12th fret
+    21950, // 13th fret
+    22850, // 14th fret
+    24000, // 15th fret
+    24950  // End boundary
 };
 
 // Base MIDI note values for buttons (G3, D4, A4, E5)
@@ -74,11 +91,14 @@ bool read_ads_channels(ads1115_adc_t *ads, int16_t *adc_values, adc_state_t *sta
 void read_PB();
 void interpret_midi_state();
 int16_t get_fret_from_softpot(int16_t softpot_value);
+void send_note_on(int16_t note);
+void send_note_off(int16_t note);
 
 int main()
 {
     ////////////////////// INITIALIZATION //////////////////////
     stdio_init_all();
+    tud_init(0);
 
     // Initialize Push Buttons
     init_PB();
@@ -89,20 +109,30 @@ int main()
     // Initialize ADS1115
     // Edit contents of function to fiddle with ADS1115 settings
     init_ads();
+
+    absolute_time_t next = make_timeout_time_ms(500);
     
     while (true) {
-        // Read all 4 channels from both ADS units (non-blocking)
-        read_ads_channels(&ads1, adc_values_1, &adc1_state);
-        read_ads_channels(&ads2, adc_values_2, &adc2_state);
-        
-        // Read button states
+        tud_task(); 
+
+        bool ads1_complete = read_ads_channels(&ads1, adc_values_1, &adc1_state);
+        bool ads2_complete = read_ads_channels(&ads2, adc_values_2, &adc2_state);
         read_PB();
         
-        // Interpret MIDI state from sensor data
         interpret_midi_state();
         
-        // Print debug statements
-        serial_debug_print();
+        // Only send note if current_note has changed
+        if (current_note != previous_note) {
+            // Send note off for previous note if it was valid
+            if (previous_note != -1) {
+                send_note_off(previous_note);
+            }
+            // Send note on for current note if it's valid
+            if (current_note != -1) {
+                send_note_on(current_note);
+            }
+            previous_note = current_note;
+        }
     }
 }
 
@@ -113,8 +143,6 @@ void serial_debug_print() {
             adc_values_2[0], adc_values_2[1], adc_values_2[2], adc_values_2[3]);
     printf("BTN: %d %d %d %d ", buttons[0], buttons[1], buttons[2], buttons[3]);
     printf("MIDI Note: %d (Note %s)\n", current_note, note_on ? "ON" : "OFF");
-
-    sleep_ms(1);
 }
 
 void init_I2C() {
@@ -154,7 +182,7 @@ bool read_ads_channels(ads1115_adc_t *ads, int16_t *adc_values, adc_state_t *sta
     
     // If we're waiting for a channel switch to settle
     if (state->waiting_for_switch) {
-        if (current_time - state->last_switch_time >= 1) {
+        if (current_time - state->last_switch_time >= 3) {
             // Channel has settled, read the ADC value
             ads1115_read_adc(&adc_values[state->current_channel], ads);
             state->waiting_for_switch = false;
@@ -229,4 +257,29 @@ void interpret_midi_state() {
     // Calculate final MIDI note (base note + fret offset)
     current_note = base_note + fret;
     note_on = true;
+}
+
+void send_note_on(int16_t note) {
+    if (!tud_midi_mounted()) return;
+
+    const uint8_t vel = 100;
+    uint8_t msg[3];
+    
+    msg[0] = 0x90; // Note On
+    msg[1] = note;
+    msg[2] = vel;
+    
+    tud_midi_stream_write(0, msg, 3);
+}
+
+void send_note_off(int16_t note) {
+    if (!tud_midi_mounted()) return;
+
+    uint8_t msg[3];
+    
+    msg[0] = 0x80; // Note Off
+    msg[1] = note;
+    msg[2] = 0;
+    
+    tud_midi_stream_write(0, msg, 3);
 }
