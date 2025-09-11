@@ -61,8 +61,7 @@ uint16_t mux_configs[4] = {
 };
 
 // Fret positions array (17 values from 9000 to 26000)
-int16_t fret_positions[17] = {
-    9000,  // 1st fret
+int16_t fret_positions[16] = {
     13200, // 2nd fret
     14000, // 3rd fret  
     14650, // 4th fret
@@ -90,6 +89,11 @@ int16_t base_notes[4] = {55, 62, 69, 76}; // G3=55, D4=62, A4=69, E5=76
 #define VOLUME_MAX 127        // Maximum MIDI volume (100%)
 #define VOLUME_MIN 13         // Minimum MIDI volume (~10%)
 
+// Pitch bend configuration
+#define PITCHBEND_MAX_RANGE 2048   // Maximum pitch bend range (±2048 = ±2 semitones)
+#define PITCHBEND_CENTER 8192      // MIDI pitch bend center value (14-bit: 0-16383)
+#define SOFTPOT_DEVIATION_MAX 500  // Maximum softpot deviation from fret center for full pitch bend
+
 // Define functions
 void serial_debug_print();
 void init_I2C();
@@ -103,6 +107,8 @@ void send_note_on(int16_t note);
 void send_note_off(int16_t note);
 int16_t fsr_to_volume(int16_t fsr_value);
 void send_volume_control(int16_t volume);
+int16_t calculate_pitch_bend(int16_t softpot_value, int16_t fret_position);
+void send_pitch_bend(int16_t pitch_bend_value);
 
 int main()
 {
@@ -275,6 +281,19 @@ void interpret_midi_state() {
     // Get fret position from softpot
     int16_t fret = get_fret_from_softpot(softpot_value);
     
+    // Calculate pitch bend based on softpot deviation from fret center
+    // Skip pitch bend for open strings (fret 0)
+    int16_t pitch_bend = PITCHBEND_CENTER; // Default to center (no bend)
+    if (fret > 0) {
+        pitch_bend = calculate_pitch_bend(softpot_value, fret);
+    }
+    
+    // Send pitch bend if changed
+    if (pitch_bend != current_pitchbend) {
+        send_pitch_bend(pitch_bend);
+        current_pitchbend = pitch_bend;
+    }
+    
     // Calculate final MIDI note (base note + fret offset)
     current_note = base_note + fret;
     note_on = true;
@@ -331,6 +350,62 @@ void send_volume_control(int16_t volume) {
     msg[0] = 0xB0; // Control Change on channel 1
     msg[1] = 0x07; // CC7 (Main Volume)
     msg[2] = volume & 0x7F; // Ensure 7-bit value
+    
+    tud_midi_stream_write(0, msg, 3);
+}
+
+// Calculate pitch bend based on softpot deviation from fret center
+int16_t calculate_pitch_bend(int16_t softpot_value, int16_t fret_position) {
+    // Find the fret boundaries for the current fret
+    int16_t fret_start, fret_end;
+    
+    if (fret_position == 0) {
+        // Open string - use first fret as reference
+        fret_start = 0;
+        fret_end = fret_positions[0];
+    } else if (fret_position >= 16) {
+        // Beyond last fret - use last fret boundaries
+        fret_start = fret_positions[15];
+        fret_end = fret_positions[16];
+    } else {
+        // Normal fret - use current and next fret positions
+        fret_start = fret_positions[fret_position - 1];
+        fret_end = fret_positions[fret_position];
+    }
+    
+    // Calculate center position between fret boundaries
+    int16_t fret_center = (fret_start + fret_end) / 2;
+    
+    // Calculate deviation from center
+    int16_t deviation = softpot_value - fret_center;
+    
+    // Limit deviation to maximum range
+    if (deviation > SOFTPOT_DEVIATION_MAX) {
+        deviation = SOFTPOT_DEVIATION_MAX;
+    } else if (deviation < -SOFTPOT_DEVIATION_MAX) {
+        deviation = -SOFTPOT_DEVIATION_MAX;
+    }
+    
+    // Convert deviation to pitch bend value
+    // Scale deviation to pitch bend range and add to center
+    int16_t pitch_bend = PITCHBEND_CENTER + ((deviation * PITCHBEND_MAX_RANGE) / SOFTPOT_DEVIATION_MAX);
+    
+    return pitch_bend;
+}
+
+// Send MIDI pitch bend message
+void send_pitch_bend(int16_t pitch_bend_value) {
+    if (!tud_midi_mounted()) return;
+
+    // Ensure pitch bend value is within 14-bit range (0-16383)
+    if (pitch_bend_value < 0) pitch_bend_value = 0;
+    if (pitch_bend_value > 16383) pitch_bend_value = 16383;
+    
+    uint8_t msg[3];
+    
+    msg[0] = 0xE0; // Pitch Bend on channel 1
+    msg[1] = pitch_bend_value & 0x7F;        // LSB (7 bits)
+    msg[2] = (pitch_bend_value >> 7) & 0x7F; // MSB (7 bits)
     
     tud_midi_stream_write(0, msg, 3);
 }
