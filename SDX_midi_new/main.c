@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "ads1115.h"
@@ -52,6 +53,9 @@ int16_t current_volume = 127;
 int16_t previous_volume = 127;
 bool note_on = false;
 
+// Fret detection state for hysteresis
+int16_t current_fret = -1;
+
 // ADS1115 Channel Configurations
 uint16_t mux_configs[4] = {
     ADS1115_MUX_SINGLE_0,
@@ -93,6 +97,9 @@ int16_t base_notes[4] = {55, 62, 69, 76}; // G3=55, D4=62, A4=69, E5=76
 #define PITCHBEND_MAX_RANGE 2048   // Maximum pitch bend range (±2048 = ±2 semitones)
 #define PITCHBEND_CENTER 8192      // MIDI pitch bend center value (14-bit: 0-16383)
 #define SOFTPOT_DEVIATION_MAX 500  // Maximum softpot deviation from fret center for full pitch bend
+
+// Fret detection hysteresis configuration
+#define FRET_HYSTERESIS 70        // Units of hysteresis for fret switching stability
 
 // Define functions
 void serial_debug_print();
@@ -222,22 +229,56 @@ bool read_ads_channels(ads1115_adc_t *ads, int16_t *adc_values, adc_state_t *sta
     return false; // Channel switch initiated, need to wait
 }
 
-// Helper function to determine fret position from softpot value
+// Helper function to determine fret position from softpot value with hysteresis
 int16_t get_fret_from_softpot(int16_t softpot_value) {
     // If softpot value is below minimum threshold, no fret is pressed
     if (softpot_value < fret_positions[0]) {
+        current_fret = 0;
         return 0; // Open string (fret 0)
     }
     
-    // Find the closest fret position
-    for (int i = 0; i < 16; i++) {
+    // Find the raw fret position without hysteresis
+    int16_t raw_fret = 0;
+    for (int i = 0; i < 15; i++) {
         if (softpot_value >= fret_positions[i] && softpot_value < fret_positions[i + 1]) {
-            return i + 1; // Fret number (1-16)
+            raw_fret = i + 1; // Fret number (1-16)
+            break;
         }
     }
     
-    // If above maximum, return highest fret
-    return 16;
+    // If above maximum, use highest fret
+    if (raw_fret == 0) {
+        raw_fret = 16;
+    }
+    
+    // Apply hysteresis if we have a current fret
+    if (current_fret != -1) {
+        // Check if we're switching to an adjacent fret
+        if (abs(raw_fret - current_fret) == 1) {
+            // Apply hysteresis - need to cross threshold + hysteresis to switch
+            int boundary_index = (raw_fret > current_fret) ? raw_fret - 1 : current_fret - 1;
+            
+            if (boundary_index >= 0 && boundary_index < 15) {
+                int16_t threshold = fret_positions[boundary_index];
+                
+                if (raw_fret > current_fret) {
+                    // Moving up frets - need to exceed threshold + hysteresis
+                    if (softpot_value < threshold + FRET_HYSTERESIS) {
+                        return current_fret; // Stay on current fret
+                    }
+                } else {
+                    // Moving down frets - need to go below threshold - hysteresis
+                    if (softpot_value > threshold - FRET_HYSTERESIS) {
+                        return current_fret; // Stay on current fret
+                    }
+                }
+            }
+        }
+    }
+    
+    // Update and return new fret
+    current_fret = raw_fret;
+    return raw_fret;
 }
 
 // Main function to interpret sensor data and update MIDI state
