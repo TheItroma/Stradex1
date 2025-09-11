@@ -28,3 +28,5 @@ Instructions to make it:
 7. Download Pico C SDK and Clone SDX_midi to import as a Pico project. Flash the firmware onto the Pico 2 and it should be detectable as a MIDI device. You can also flash the SDX_sensor_USB_debugger to print all hardware sensor raw values through the serial window to make sure you got the hardware correct.
 
 Check out my website for more projects + contact me.
+
+[My Website](bradylin.com)
