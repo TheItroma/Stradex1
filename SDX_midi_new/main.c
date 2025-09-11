@@ -48,6 +48,8 @@ int16_t current_note = -1;
 int16_t previous_note = -1;
 int16_t current_pitchbend = 0;
 int16_t current_velocity = 0;
+int16_t current_volume = 127;
+int16_t previous_volume = 127;
 bool note_on = false;
 
 // ADS1115 Channel Configurations
@@ -60,7 +62,6 @@ uint16_t mux_configs[4] = {
 
 // Fret positions array (17 values from 9000 to 26000)
 int16_t fret_positions[17] = {
-    0,     // Open string (fret 0)
     9000,  // 1st fret
     13200, // 2nd fret
     14000, // 3rd fret  
@@ -76,11 +77,18 @@ int16_t fret_positions[17] = {
     21950, // 13th fret
     22850, // 14th fret
     24000, // 15th fret
-    24950  // End boundary
+    24950,  // End boundary
+    26000  // End boundary
 };
 
 // Base MIDI note values for buttons (G3, D4, A4, E5)
 int16_t base_notes[4] = {55, 62, 69, 76}; // G3=55, D4=62, A4=69, E5=76
+
+// FSR to Volume mapping configuration
+#define FSR_MIN_VALUE 1000    // FSR value for maximum volume
+#define FSR_MAX_VALUE 22000   // FSR value for minimum volume
+#define VOLUME_MAX 127        // Maximum MIDI volume (100%)
+#define VOLUME_MIN 13         // Minimum MIDI volume (~10%)
 
 // Define functions
 void serial_debug_print();
@@ -93,6 +101,8 @@ void interpret_midi_state();
 int16_t get_fret_from_softpot(int16_t softpot_value);
 void send_note_on(int16_t note);
 void send_note_off(int16_t note);
+int16_t fsr_to_volume(int16_t fsr_value);
+void send_volume_control(int16_t volume);
 
 int main()
 {
@@ -247,8 +257,19 @@ void interpret_midi_state() {
     // Get the base note for the pressed button
     int16_t base_note = base_notes[pressed_button];
     
+    // Read FSR value for volume control based on which button is pressed
+    // FSR values are on ADS1 channels 0-3 corresponding to buttons 0-3
+    int16_t fsr_value = adc_values_1[pressed_button];
+    
+    // Convert FSR to MIDI volume and send if changed
+    current_volume = fsr_to_volume(fsr_value);
+    if (current_volume != previous_volume) {
+        send_volume_control(current_volume);
+        previous_volume = current_volume;
+    }
+    
     // Determine which ADC channel corresponds to the softpot for this string
-    // Assuming adc_values_1[0] is the softpot for now (you may need to adjust this)
+    // Assuming adc_values_2[0] is the softpot for now (you may need to adjust this)
     int16_t softpot_value = adc_values_2[0];
     
     // Get fret position from softpot
@@ -280,6 +301,36 @@ void send_note_off(int16_t note) {
     msg[0] = 0x80; // Note Off
     msg[1] = note;
     msg[2] = 0;
+    
+    tud_midi_stream_write(0, msg, 3);
+}
+
+// Convert FSR value to MIDI volume (0-127)
+// FSR is inverse: higher FSR values = lower volume
+int16_t fsr_to_volume(int16_t fsr_value) {
+    if (fsr_value < FSR_MIN_VALUE) {
+        return VOLUME_MAX; // Maximum volume
+    } else if (fsr_value > FSR_MAX_VALUE) {
+        return VOLUME_MIN; // Minimum volume
+    } else {
+        // Linear interpolation between FSR_MIN_VALUE and FSR_MAX_VALUE
+        // Map FSR_MIN_VALUE->VOLUME_MAX and FSR_MAX_VALUE->VOLUME_MIN
+        int16_t fsr_range = FSR_MAX_VALUE - FSR_MIN_VALUE;
+        int16_t fsr_offset = fsr_value - FSR_MIN_VALUE;
+        int16_t volume = VOLUME_MAX - ((fsr_offset * (VOLUME_MAX - VOLUME_MIN)) / fsr_range);
+        return volume;
+    }
+}
+
+// Send MIDI volume control change (CC7)
+void send_volume_control(int16_t volume) {
+    if (!tud_midi_mounted()) return;
+
+    uint8_t msg[3];
+    
+    msg[0] = 0xB0; // Control Change on channel 1
+    msg[1] = 0x07; // CC7 (Main Volume)
+    msg[2] = volume & 0x7F; // Ensure 7-bit value
     
     tud_midi_stream_write(0, msg, 3);
 }
