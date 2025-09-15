@@ -29,4 +29,4 @@ Instructions to make it:
 
 Check out my website for more projects + contact me.
 
-[My Website](bradylin.com)
+[My Website](https://bradylin.com/)

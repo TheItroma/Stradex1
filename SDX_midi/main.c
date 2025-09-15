@@ -104,14 +104,17 @@ int16_t base_notes[4] = {55, 62, 69, 76}; // G3=55, D4=62, A4=69, E5=76
 #define SOFTPOT_DEVIATION_MAX 500  // Maximum softpot deviation from fret center for full pitch bend
 
 // Fret detection hysteresis configuration
-#define FRET_HYSTERESIS 85        // Units of hysteresis for fret switching stability
+#define FRET_HYSTERESIS 75        // Units of hysteresis for fret switching stability
 
 // Modulation control configuration
 #define MODULATION_MIN 0          // Minimum modulation value (CC1)
 #define MODULATION_MAX 127        // Maximum modulation value (CC1)
 
+#define MIDI_EFFECT_MIN 0
+#define MIDI_EFFECT_MAX 127
+
 // Tuning control configuration  
-#define TUNING_RANGE 13           // ±13 semitones (one octave up/down)
+#define TUNING_RANGE 25           // ±13 semitones (one octave up/down)
 #define TUNING_CENTER_VALUE 13500 // Potentiometer center value for standard tuning
 #define TUNING_MIN_VALUE 1000        // Minimum potentiometer value
 #define TUNING_MAX_VALUE 26000    // Maximum potentiometer value
@@ -133,6 +136,7 @@ int16_t calculate_pitch_bend(int16_t softpot_value, int16_t fret_position);
 void send_pitch_bend(int16_t pitch_bend_value);
 int16_t pot_to_tuning_offset(int16_t pot_value);
 void send_modulation_control(int16_t modulation);
+void send_midifx_control(int16_t midifx);
 
 int main()
 {
@@ -514,5 +518,17 @@ void send_modulation_control(int16_t modulation) {
     msg[1] = 0x01; // CC1 (Modulation)
     msg[2] = modulation & 0x7F; // Ensure 7-bit value
     
+    tud_midi_stream_write(0, msg, 3);
+}
+
+void send_midifx_control(int16_t midifx) {
+    if (!tud_midi_mounted()) return;
+
+    uint8_t msg[3];
+
+    msg[0] = 0xB0;
+    msg[1] = 0x02;
+    msg[2] = midifx & 0x7F;
+
     tud_midi_stream_write(0, msg, 3);
 }
