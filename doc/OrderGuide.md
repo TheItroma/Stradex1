@@ -18,4 +18,5 @@ You'll need :
 | 10k Resistors | 10 | 300 | | 5 | https://www.aliexpress.com/item/1005008321368077.html |
 | M3 40mm Machine screws | 4 | 20 | | 5 | https://www.aliexpress.com/item/33003801934.html |
 | Other M3 Machine screws | 20 | 392 | | 8.50 | https://www.aliexpress.com/item/1005007273134914.html |
+
 Total price  VERY ROUGHT ESTIMATE, YMMV, INCLUDES TAXES AND SHIPPING Assuming you already have a 3d printer and fillament, a soldering iron and some salvaged wire or bought off aliexpress.   80
