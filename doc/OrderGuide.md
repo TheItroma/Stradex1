@@ -4,11 +4,9 @@
 
 For this build, you'll need : 
 
-- A 3d printer
-- A soldering iron
-- Solder (Do make sure that you are getting one with a good ratio of solder material and flux)
-- Solder wick or pump
-- Solder cleanning spunge or brass ball
+- A 3d printer (I use an ender 3 pro, Very worth for the price)
+- A soldering kit (Literally any cheap one will do, if you have more money, Look around for separated higher qualitie items but I don't suggest investing in good stuff since the cheap stuff will last you long and be absolutly fine. If you do want the higher quality stuff, you'll need to buy a solder wick or pump and a solder cleanning spunge or brass ball)
+- Solder (**DO NOT USE THE ONE PROVIDED WITH THE KIT** from my experience, its shit (its ok if you're really on a budget but do at your own risk). I'd reccomend buying it separatly, make sure its lead free(ideally) and that it has a good % of flux - I use 2%. Also, the size should be ~ 0.5mm - 1mm)
     
 Optional but nice to have : 
 
@@ -39,4 +37,5 @@ You'll need :
 | Other M3 Machine screws | 20 | 392 | | 8.50 | https://www.aliexpress.com/item/1005007273134914.html |
 
 **VERY ROUGHT ESTIMATE, YMMV, INCLUDES TAXES AND SHIPPING** Assuming you already have a 3d printer and fillament, a soldering iron and some salvaged wire or bought off aliexpress.
-Total price : 80 CAD
+
+**Total price : 80 CAD**
