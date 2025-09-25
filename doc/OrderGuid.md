@@ -8,7 +8,7 @@ There are 2 main platforms for ordering pcb's : jlcpcb and pcbway. From what It 
 
 You'll need :
     
-| Part       | Qantity for 1  | Quantity in sold package  | Notes   |Price (CAD)  | Url |
+| Part       | Quantity for 1  | Quantity in sold package  | Notes   |Price (CAD)  | Url |
 | --------------------|------------------------:|-------------------------:|--------------|----:|-----|
 | Raspberry pi pico |     1 |  1|  Choose the version without header  | https://www.pishop.ca/product/raspberry-pi-pico-2/?src=raspberrypi|
 | SoftPot 200mm (SP-L-0200-103-3%-RH) | 1 | 1 | | https://www.digikey.ca/en/products/detail/spectra-symbol/SP-L-0200-103-3-RH/2175427 |
