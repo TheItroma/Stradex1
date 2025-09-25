@@ -27,6 +27,8 @@ Instructions to make it:
 6. Install the PCB into the body chassis, and place the two acrylic plates on both sides of the body. Then screw the four 40mm M3 screws in to secure the pieces. 
 7. Download Pico C SDK and Clone SDX_midi to import as a Pico project. Flash the firmware onto the Pico 2 and it should be detectable as a MIDI device. You can also flash the SDX_sensor_USB_debugger to print all hardware sensor raw values through the serial window to make sure you got the hardware correct.
 
+For more information on how to build it, heres a beginner friendly build guide : "add Introduction.md to doc folder
+
 Check out my website for more projects + contact me.
 
 [My Website](https://bradylin.com/)
