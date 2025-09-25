@@ -28,4 +28,4 @@ Once you finish one section, you can go to the next step by clicking the text at
 
 So first step : aquire the components and tools.
 
-[Lets Go!](OrderingGuide.md)
+[Lets Go!](OrderGuide.md)

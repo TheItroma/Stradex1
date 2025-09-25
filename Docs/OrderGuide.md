@@ -25,7 +25,7 @@ In my oppinion, every single person on this earth should own one. For all the sh
 
 ### The pcb
 
-There are 2 main platforms for ordering pcb's : jlcpcb and pcbway. From what It says online, jlcpcb.com is the better platform for pcb's. So go to jlcpcb.com, scroll down and "add gerber files" go to the folder you downloaded -> SDX_gerbers -> The latest zip file (idk why he has multiple versions considering github exists but oh well). You do not need to extract it. You cannot select more than 5 pcb's sooo, make some for ur friends or sell them or smth. Here are the only settings you might want to change : PCB Color (carefull with that, the price might fluctuate per demand), Surface finish (Pick LeadFree, Its very slightly harder to solder, very slightly more expensive but doesn't contain lead so more environement friendly). Then, select your shippement option and build time and done.
+There are 2 main platforms for ordering pcb's : jlcpcb and pcbway. From what It says online, jlcpcb.com is the better platform for pcb's. So go to jlcpcb.com, scroll down and "add gerber files" go to the folder you downloaded -> PCB -> "ThisIsTheGerber.zip". You do not need to extract it. You cannot purchase more than 5 pcb's sooo, make some for your friends or sell them or something. Here are the only settings you might want to change : PCB Color (carefull with that, the price might fluctuate per demand), Surface finish (Pick LeadFree, Its very slightly harder to solder, very slightly more expensive but doesn't contain lead so more environement friendly). Then, select your shippement option and build time and done.
 
 **A PCB-LESS VERSION MIGHT BE DESIGNED**
 
