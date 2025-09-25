@@ -1,5 +1,9 @@
 # Component buying guide
 
+### Prerequisites
+
+None! Just know that buying components for [Aliexpress](aliexpress.com) is the cheapest way to get electronics but sinces it often comes by boat, it will most likely take over 2 weeks to arrive. [Amazon](amazon.com) on the other hand, might take less than a week but is **SIGNIFICANTLY MORE EXPENSIVE**. The price estimates in the price section are very, very loose. Shopping on aliexpress is kind off an art in of itself at this point. If you wish to find cheaper parts. Here's one tip that will make it much easier : just pick "choice" items. You get free shipping if the order is over 10$ (it will be) When arriving at the cart, verify that you have all the items you need and verify each of them for shipping fees, they can slip in sometimes, be carefull. On the front of scams, I haven't encountered any yet.
+
 ### Tools
 
 For this build, you'll need : 
