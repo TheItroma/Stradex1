@@ -17,7 +17,7 @@ Optional but nice to have :
 
 In my oppinion, every single person on this earth should own one. For all the shitty plastic gadget you buy for whatever reason, theres an INSANE transportation pollution and monetary cost associated. Its all imported from china and NOT AT ALL space efficient. Owning a 3d printer allows you to localise the manifacturing for plastic recyclable usefull parts that you can design yourself. It allows you to repair expensive stuff that really only needs a tiny tiny plastic part to function that the manifacturer won't provide. It allows you to make a whole ass organisation system for every aspect of your life - Checkout gridfinity. If you are passionate about music making and broke, chances are buying a 300 CAD printer will allow you to make multiple instruments costing 100 CAD but as good if not more than 599 CAD consumer versions (The synth/midi community is kinda getting riped off lol).
 
-Also, you can always send the parts to be printed to places [like pcbway](pcbway.com) or a local FAB(Fabrication places u can rent or smth. They have tools for making this instrument)/3d print farm place.
+Also, you can always send the parts to be printed to places [like pcbway](pcbway.com) or a local FAB(Fabrication places(they have 3d printers, cnc stuff, solder kits, etc... all for rent))**
 
 ### The pcb
 
