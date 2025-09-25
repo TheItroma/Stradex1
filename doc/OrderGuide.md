@@ -4,16 +4,16 @@
 
 For this build, you'll need : 
 
-    - A 3d printer
-    - A soldering iron
-    - Solder (Do make sure that you are getting one with a good ratio of solder material and flux)
-    - Solder wick or pump
-    - Solder cleanning spunge or brass ball
+- A 3d printer
+- A soldering iron
+- Solder (Do make sure that you are getting one with a good ratio of solder material and flux)
+- Solder wick or pump
+- Solder cleanning spunge or brass ball
     
 Optional but nice to have : 
 
-    - Helping hand (NO NEED TO BUY, you can made ones out of laundry clips or just 3d print 1)
-    - Flux (idk, in case you have a solder with few of it or if u wanna make em better and prettier)
+- Helping hand (NO NEED TO BUY, you can made ones out of laundry clips or just 3d print 1)
+- Flux (idk, in case you have a solder with few of it or if u wanna make em better and prettier)
 
 ### The pcb
 
