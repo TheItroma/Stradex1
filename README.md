@@ -8,7 +8,7 @@ This project took me a good while. Sure, there was a lot of time spent fiddling 
 
 ## Build guide : 
 
-# [**Over here !**](Docs/BuildGuide.md)
+### [**Over here !**](Docs/BuildGuide.md)
 
 If you already have quite a bit of experience or
 just don't want the bloat of the beginner guide : [This is the advanced guide](Docs/AdvancedBuildGuide.md)
