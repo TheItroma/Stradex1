@@ -15,7 +15,7 @@ Optional but nice to have :
 - Helping hand (NO NEED TO BUY, you can made ones out of laundry clips or just 3d print 1)
 - Flux (idk, in case you have a solder with few of it or if u wanna make em better and prettier)
 
-** IF YOU'RE HESITANT ON BUYING A 3D PRINTER :** In my oppinion, every single person on this earth should own one. For all the shitty plastic gadget you buy for whatever reason, theres an INSANE transportation pollution and monetary cost associated. Its all imported from china and NOT AT ALL space efficient. Owning a 3d printer allows you to localise the manifacturing for plastic recyclable usefull parts that you can design yourself. It allows you to repair expensive stuff that really only needs a tiny tiny plastic part to function that the manifacturer won't provide. It allows you to make a whole ass organisation system for every aspect of your life - Checkout gridfinity. If you are passionate about music making and broke, chances are buying a 300 CAD printer will allow you to make multiple instruments costing 100 CAD but as good if not more than 599 CAD consumer versions (The synth/midi community is kinda getting riped off lol).
+**IF YOU'RE HESITANT ON BUYING A 3D PRINTER :** In my oppinion, every single person on this earth should own one. For all the shitty plastic gadget you buy for whatever reason, theres an INSANE transportation pollution and monetary cost associated. Its all imported from china and NOT AT ALL space efficient. Owning a 3d printer allows you to localise the manifacturing for plastic recyclable usefull parts that you can design yourself. It allows you to repair expensive stuff that really only needs a tiny tiny plastic part to function that the manifacturer won't provide. It allows you to make a whole ass organisation system for every aspect of your life - Checkout gridfinity. If you are passionate about music making and broke, chances are buying a 300 CAD printer will allow you to make multiple instruments costing 100 CAD but as good if not more than 599 CAD consumer versions (The synth/midi community is kinda getting riped off lol).
 
 ### The pcb
 
@@ -38,5 +38,5 @@ You'll need :
 | M3 40mm Machine screws | 4 | 20 | | 5 | https://www.aliexpress.com/item/33003801934.html |
 | Other M3 Machine screws | 20 | 392 | | 8.50 | https://www.aliexpress.com/item/1005007273134914.html |
 
-VERY ROUGHT ESTIMATE, YMMV, INCLUDES TAXES AND SHIPPING Assuming you already have a 3d printer and fillament, a soldering iron and some salvaged wire or bought off aliexpress.
+**VERY ROUGHT ESTIMATE, YMMV, INCLUDES TAXES AND SHIPPING** Assuming you already have a 3d printer and fillament, a soldering iron and some salvaged wire or bought off aliexpress.
 Total price : 80 CAD
