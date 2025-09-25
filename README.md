@@ -2,7 +2,7 @@ STRADEX1
 ==============
 An electronic instrument crossover between a violin, a mandolin and an otamatone
 
-![Strandex1](/Docs/Pictures/StrandexFrontPage.png)
+![Strandex1](/Docs/Pictures/StradexFrontPage.png)
 
 I've always wanted to put my violin skills to use in a MIDI environment, but there really isn't a controller on the market that can emulate the feel of a violin to the extent that Stradex does. 
 
