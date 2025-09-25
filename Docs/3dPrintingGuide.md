@@ -31,6 +31,6 @@ TODO : SOMETHING SOMETHING SUPPORTS
 
 Now just copy the sliced file to a MicroSD card, eject it and insert it into the printer and print.
 
-Next up : Assembly
+### Next up : Assembly
 
-[Lets Go!](Assembly.md)
+[**Lets Go!***](Assembly.md)

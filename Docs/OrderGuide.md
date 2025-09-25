@@ -50,4 +50,4 @@ You'll need :
 
 ### Next step :
 
-[3D printing guide!](3dPrintingGuide.md)
+[**3D printing guide!**](3dPrintingGuide.md)
