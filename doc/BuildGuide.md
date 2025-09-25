@@ -10,7 +10,7 @@ P.S : If there are anything that seem wrong (missinformation or outated links) o
 
 What is a repository? A repository is, in the FOSS/FOSH world what contains all the files for the project in question.
 
-To download it, simply click [here](https://github.com/USERNAME/REPOSITORY/archive/refs/heads/main.zip) and extract the zip file wherever you want
+To download it, simply click [here](https://github.com/@user_name/Stradex1/archive/refs/heads/main.zip) and extract the zip file wherever you want
 
 ## **How to use this guide :**
 
