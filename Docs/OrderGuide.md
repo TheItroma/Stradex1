@@ -35,7 +35,7 @@ You'll need :
     
 | Part       | Quantity for 1  | Quantity in sold package  | Notes   |Price (CAD)  | Url |
 | --------------------|-----------------:|----------------:|------------|----:|-----|
-| Raspberry pi pico |     1 |  1|  Choose the version without header | 7.8 | https://www.pishop.ca/product/raspberry-pi-pico-2/?src=raspberrypi|
+| Raspberry pi pico (Normally, the second one, but I think it should work with the first one as well) |     1 |  1|  Choose the version without header | 7.8 | https://www.pishop.ca/product/raspberry-pi-pico-2/?src=raspberrypi|
 | SoftPot 200mm (SP-L-0200-103-3%-RH) | 1 | 1 | | 40 | https://www.digikey.ca/en/products/detail/spectra-symbol/SP-L-0200-103-3-RH/2175427 |
 |  ADS1115 Breackout boards | 2 | 2 | | 5 | https://www.aliexpress.com/item/1005007906475242.html |
 | 10K Vertical Potentiometer | 3 | 5 | | 3.70 | https://www.aliexpress.com/item/1005006220604488.html |
