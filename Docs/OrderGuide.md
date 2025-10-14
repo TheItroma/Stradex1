@@ -39,12 +39,13 @@ You'll need :
 | SoftPot 200mm (SP-L-0200-103-3%-RH) | 1 | 1 | | 40 | https://www.digikey.ca/en/products/detail/spectra-symbol/SP-L-0200-103-3-RH/2175427 |
 |  ADS1115 Breackout boards | 2 | 2 | | 5 | https://www.aliexpress.com/item/1005007906475242.html |
 | 10K Vertical Potentiometer | 3 | 5 | | 3.70 | https://www.aliexpress.com/item/1005006220604488.html |
-| 10k FSR Soft tactile pushbuttons | 3 | 100 | | 5 | https://www.aliexpress.com/item/1005009964547709.html |
+| 10k FSR Soft tactile pushbuttons | 4 | 100 | | 5 | https://www.aliexpress.com/item/1005009964547709.html |
+| 10k FSR | 4 | 2 | | 14.68 | https://www.aliexpress.com/item/1005007170243698.html
 | 10k Resistors | 10 | 300 | | 5 | https://www.aliexpress.com/item/1005008321368077.html |
 | M3 40mm Machine screws | 4 | 20 | | 5 | https://www.aliexpress.com/item/33003801934.html |
 | Other M3 Machine screws | 20 | 392 | | 8.50 | https://www.aliexpress.com/item/1005007273134914.html |
 
-**VERY ROUGHT ESTIMATE, YMMV, INCLUDES TAXES AND SHIPPING** Assuming you already have a 3d printer and fillament, a soldering iron and some salvaged wire or bought off aliexpress.
+**VERY ROUGHT ESTIMATE, YMMV, INCLUDES TAXES AND SHIPPING** Assuming you already have a 3d printer and fillament, a soldering iron and some salvaged wire or bought off aliexpress. ** If you find better pricing, please open an issue **
 
 **Total price : 80 CAD**
 
