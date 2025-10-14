@@ -2,7 +2,7 @@
 
 ### Prerequisites
 
-None! Just know that buying components for [Aliexpress](aliexpress.com) is the cheapest way to get electronics but sinces it often comes by boat, it will most likely take over 2 weeks to arrive. [Amazon](amazon.com) on the other hand, might take less than a week but is **SIGNIFICANTLY MORE EXPENSIVE**. The price estimates in the price section are very, very loose. Shopping on aliexpress is kind off an art in of itself at this point. If you wish to find cheaper parts. Here's one tip that will make it much easier : just pick "choice" items. You get free shipping if the order is over 10$ (it will be) When arriving at the cart, verify that you have all the items you need and verify each of them for shipping fees, they can slip in sometimes, be carefull. On the front of scams, I haven't encountered any yet.
+None! Just know that buying components for [Aliexpress](https://aliexpress.com) is the cheapest way to get electronics but sinces it often comes by boat, it will most likely take over 2 weeks to arrive. [Amazon](https://amazon.com) on the other hand, might take less than a week but is **SIGNIFICANTLY MORE EXPENSIVE**. The price estimates in the price section are very, very loose. Shopping on aliexpress is kind off an art in of itself at this point. If you wish to find cheaper parts. Here's one tip that will make it much easier : just pick "choice" items. You get free shipping if the order is over 10$ (it will be) When arriving at the cart, verify that you have all the items you need and verify each of them for shipping fees, they can slip in sometimes, be carefull. On the front of scams, I haven't encountered any yet.
 
 ### Tools
 
@@ -21,7 +21,7 @@ Optional but nice to have :
 
 In my oppinion, every single person on this earth should own one. For all the shitty plastic gadget you buy for whatever reason, theres an INSANE transportation pollution and monetary cost associated. Its all imported from china and NOT AT ALL space efficient. Owning a 3d printer allows you to localise the manifacturing for plastic recyclable usefull parts that you can design yourself. It allows you to repair expensive stuff that really only needs a tiny tiny plastic part to function that the manifacturer won't provide. It allows you to make a whole ass organisation system for every aspect of your life - Checkout gridfinity. If you are passionate about music making and broke, chances are buying a 300 CAD printer will allow you to make multiple instruments costing 100 CAD but as good if not more than 599 CAD consumer versions (The synth/midi community is kinda getting riped off lol).
 
-**If you still don't want to, you can always send the parts to be printed to places [like pcbway](pcbway.com) or a local FAB(Fabrication places(they have 3d printers, cnc stuff, solder kits, etc... all for rent))**
+**If you still don't want to, you can always send the parts to be printed to places [like pcbway](https://pcbway.com) or a local FAB(Fabrication places(they have 3d printers, cnc stuff, solder kits, etc... all for rent))**
 
 ### The pcb
 
@@ -35,12 +35,12 @@ You'll need :
     
 | Part       | Quantity for 1  | Quantity in sold package  | Notes   |Price (CAD)  | Url |
 | --------------------|-----------------:|----------------:|------------|----:|-----|
-| Raspberry pi pico (Normally, the second one, but I think it should work with the first one as well) |     1 |  1|  Choose the version without header | 7.8 | https://www.pishop.ca/product/raspberry-pi-pico-2/?src=raspberrypi|
+| Raspberry pi pico (Normally, the second one, but I think it should work with the first one as well) |     1 |  1|  Choose the version without header, also, Im pretty sure that it would work with the pico 1, will have to verify | 7.8 | https://www.pishop.ca/product/raspberry-pi-pico-2/?src=raspberrypi|
 | SoftPot 200mm (SP-L-0200-103-3%-RH) | 1 | 1 | | 40 | https://www.digikey.ca/en/products/detail/spectra-symbol/SP-L-0200-103-3-RH/2175427 |
 |  ADS1115 Breackout boards | 2 | 2 | | 5 | https://www.aliexpress.com/item/1005007906475242.html |
 | 10K Vertical Potentiometer | 3 | 5 | | 3.70 | https://www.aliexpress.com/item/1005006220604488.html |
 | 10k FSR Soft tactile pushbuttons | 4 | 100 | | 5 | https://www.aliexpress.com/item/1005009964547709.html |
-| 10k FSR | 4 | 2 | | 14.68 | https://www.aliexpress.com/item/1005007170243698.html
+| 10k FSR | 4 | 2 | It wouldn't suprise me if you could find a cheaper one for this one | 14.68 | https://www.aliexpress.com/item/1005007170243698.html
 | 10k Resistors | 10 | 300 | | 5 | https://www.aliexpress.com/item/1005008321368077.html |
 | M3 40mm Machine screws | 4 | 20 | | 5 | https://www.aliexpress.com/item/33003801934.html |
 | Other M3 Machine screws | 20 | 392 | | 8.50 | https://www.aliexpress.com/item/1005007273134914.html |
