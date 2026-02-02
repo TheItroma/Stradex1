@@ -47,7 +47,7 @@ You'll need :
 
 **VERY ROUGHT ESTIMATE, YMMV, INCLUDES TAXES AND SHIPPING** Assuming you already have a 3d printer and fillament, a soldering iron and some salvaged wire or bought off aliexpress. ** If you find better pricing, please open an issue **
 
-**Total price : 80 CAD**
+**Total price : ~95 CAD**
 
 ### Next step :
 
